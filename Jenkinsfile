@@ -6,33 +6,37 @@ pipeline {
     }
 
     stages {
-        stage("build") {
+
+        stage('Build') {
             steps {
-                echo "---------- build started ----------"
+                echo "---------- Build started ----------"
                 sh 'mvn clean deploy -Dmaven.test.skip=true'
-                echo "---------- build completed ----------"
+                echo "---------- Build completed ----------"
             }
         }
 
-        stage("test") {
+        stage('Test') {
             steps {
-                echo "---------- unit test started ----------"
+                echo "---------- Unit test started ----------"
                 sh 'mvn surefire-report:report'
-                echo "---------- unit test completed ----------"
+                echo "---------- Unit test completed ----------"
             }
         }
 
-        // Note: The image cuts off at the start of the 'SonarQube analysis' stage
-        stage('SonarQube analysis') {
+        stage('SonarQube Analysis') {
             environment {
                 scannerHome = tool 'MySonarQubeScanner'
-                        // Additional SonarQube environment variables go here
             }
-                steps {
-                        withSonarQubeEnv('SonarQube-Jenkins'){
-                        sh "${scannerHome}/bin/sonar-scanner"
+
+            steps {
+                echo "---------- SonarQube analysis started ----------"
+
+                withSonarQubeEnv('SonarQube-Jenkins') {
+                    sh "${scannerHome}/bin/sonar-scanner"
                 }
+
+                echo "---------- SonarQube analysis completed ----------"
+            }
         }
     }
 }
-	
